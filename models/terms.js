@@ -38,6 +38,11 @@ module.exports = (sequelize) => {
     //   defaultValue: false,
     //   allowNull: false,
     // }
+    is_active: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: true,
+      allowNull: false,
+    },
   }, {
     tableName: 'terms',
     timestamps: true,
