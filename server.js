@@ -5,7 +5,6 @@ const fastify = require('fastify')({
 });
 
 require("dotenv").config();
-
 const db = require("./models");
 
 // Register CORS plugin
@@ -18,43 +17,52 @@ fastify.register(require("@fastify/cors"), {
   credentials: true,
 });
 
-fastify.addHook('onRequest', async (request, reply) => {
-  console.log(`${request.method} ${request.url}`);
-  console.log('Headers:', request.headers);
-  console.log('Body:', request.body);
-});
+// ✅ FIXED: Register both form and JSON body parsers
+fastify.register(require('@fastify/formbody'));
+fastify.register(require('@fastify/multipart')); // For multipart forms if needed
 
+// ✅ IMPORTANT: Fastify has built-in JSON parser, but ensure it's working
+// Add this to debug body parsing
 fastify.addHook('preHandler', async (request, reply) => {
   if (request.method === 'POST' || request.method === 'PUT') {
-    console.log('POST/PUT Request Body:', request.body);
+    fastify.log.info('Request Body:', request.body);
+    fastify.log.info('Request Headers:', request.headers);
   }
 });
-
-
-fastify.register(require('@fastify/multipart'));
-// OR if you're only sending JSON:
-fastify.addContentTypeParser('application/json', { parseAs: 'string' }, function (req, body, done) {
-  try {
-    const json = JSON.parse(body)
-    done(null, json)
-  } catch (err) {
-    err.statusCode = 400
-    done(err, undefined)
-  }
-})
-
-// Explicitly register body parser plugin (optional but safe)
-fastify.register(require('@fastify/formbody'));
 
 // Register routes with prefix /api
 fastify.register(require('./routes/terms'), { prefix: '/api' });
 fastify.register(require('./routes/products'), { prefix: '/api' });
 
+// ✅ IMPROVED: Better error handler
 fastify.setErrorHandler(function (error, request, reply) {
-  fastify.log.error(error);
-  reply.status(500).send({ error: "Internal Server Error" });
+  fastify.log.error('Error details:', {
+    error: error.message,
+    stack: error.stack,
+    statusCode: error.statusCode,
+    validation: error.validation
+  });
+  
+  // Handle validation errors
+  if (error.validation) {
+    return reply.status(400).send({
+      error: "Validation Error",
+      details: error.validation
+    });
+  }
+  
+  // Handle Sequelize errors
+  if (error.name && error.name.includes('Sequelize')) {
+    return reply.status(400).send({
+      error: "Database Error",
+      message: error.message
+    });
+  }
+  
+  reply.status(error.statusCode || 500).send({
+    error: error.message || "Internal Server Error"
+  });
 });
-
 
 // Health check route
 fastify.get("/health", async (request, reply) => {
