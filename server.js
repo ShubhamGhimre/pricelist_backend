@@ -18,6 +18,18 @@ fastify.register(require("@fastify/cors"), {
   credentials: true,
 });
 
+fastify.register(require('@fastify/multipart'));
+// OR if you're only sending JSON:
+fastify.addContentTypeParser('application/json', { parseAs: 'string' }, function (req, body, done) {
+  try {
+    const json = JSON.parse(body)
+    done(null, json)
+  } catch (err) {
+    err.statusCode = 400
+    done(err, undefined)
+  }
+})
+
 // Explicitly register body parser plugin (optional but safe)
 fastify.register(require('@fastify/formbody'));
 
