@@ -14,6 +14,7 @@ fastify.register(require("@fastify/cors"), {
     "http://localhost:3000",
     process.env.FRONTEND_URL,
   ].filter(Boolean),
+   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
   credentials: true,
 });
 
