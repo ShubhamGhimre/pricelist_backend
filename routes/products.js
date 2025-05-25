@@ -1,15 +1,13 @@
 const { Products } = require("../models");
 
 async function productRoutes(fastify, options) {
-  // Get ALL Products
+  // Get all products
   fastify.get("/product", async (request, reply) => {
     try {
       const { page = 0, limit = 50, artical_no } = request.query;
-
       const offset = page * limit;
 
       const whereClause = { is_active: true };
-
       if (artical_no) {
         whereClause.artical_no = artical_no;
       }
@@ -28,9 +26,12 @@ async function productRoutes(fastify, options) {
     }
   });
 
-  // Create a new Product
+  // Create new product
   fastify.post("/product", async (request, reply) => {
     try {
+      console.log("POST /product hit");
+      console.log("Request body:", request.body);
+
       const product = await Products.create(request.body);
       return reply.code(201).send({ success: true, data: product });
     } catch (error) {
@@ -39,7 +40,7 @@ async function productRoutes(fastify, options) {
     }
   });
 
-  // Get a Product by ID
+  // Get product by id
   fastify.get("/product/:id", async (request, reply) => {
     try {
       const { id } = request.params;
@@ -54,16 +55,18 @@ async function productRoutes(fastify, options) {
     }
   });
 
-  // Update a Product by ID
+  // Update product by id
   fastify.put("/product/:id", async (request, reply) => {
     try {
       const { id } = request.params;
       const [updated] = await Products.update(request.body, {
         where: { id },
       });
+
       if (!updated) {
         return reply.code(404).send({ error: "Product not found" });
       }
+
       const updatedProduct = await Products.findByPk(id);
       return { success: true, data: updatedProduct };
     } catch (error) {
@@ -72,16 +75,18 @@ async function productRoutes(fastify, options) {
     }
   });
 
-  // Delete a Product by ID
+  // Delete product by id
   fastify.delete("/product/:id", async (request, reply) => {
     try {
       const { id } = request.params;
       const deleted = await Products.destroy({
         where: { id },
       });
+
       if (!deleted) {
         return reply.code(404).send({ error: "Product not found" });
       }
+
       return { success: true, message: "Product deleted successfully" };
     } catch (error) {
       fastify.log.error(error);

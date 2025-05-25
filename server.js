@@ -6,7 +6,6 @@ const fastify = require('fastify')({
 
 require("dotenv").config();
 
-const database = require("./config/database"); // Import the Database configuration
 const db = require("./models");
 
 // Register CORS plugin
@@ -19,16 +18,17 @@ fastify.register(require("@fastify/cors"), {
   credentials: true,
 });
 
-// Register the routes
-fastify.register( require('./routes/terms'), {prefix: '/api'} );
-fastify.register( require('./routes/products'), {prefix: '/api'} );
+// Explicitly register body parser plugin (optional but safe)
+fastify.register(require('@fastify/formbody'));
+
+// Register routes with prefix /api
+fastify.register(require('./routes/terms'), { prefix: '/api' });
+fastify.register(require('./routes/products'), { prefix: '/api' });
 
 // Health check route
 fastify.get("/health", async (request, reply) => {
   try {
-    // Check database connection
     await db.sequelize.authenticate();
-
     return reply.code(200).send({
       status: "healthy",
       timeStamp: new Date().toISOString(),
@@ -44,16 +44,14 @@ fastify.get("/health", async (request, reply) => {
   }
 });
 
-// Start the server
+// Start server
 const start = async () => {
   try {
     await db.sequelize.authenticate();
+    console.log("Database connected successfully.");
 
-    console.log("Database connection has been established successfully. \n");
-
-    // Sync the database models
     await db.sequelize.sync({ alter: process.env.NODE_ENV === 'development' });
-    console.log('Database synchronized successfully.');
+    console.log('Database synchronized.');
 
     const port = process.env.PORT || 8000;
     await fastify.listen({ port, host: "0.0.0.0" });
@@ -64,16 +62,16 @@ const start = async () => {
   }
 };
 
+// Graceful shutdown
 const gracefulShutdown = async () => {
   try {
     await db.sequelize.close();
-    console.log("Database connection closed gracefully.");
-
+    console.log("Database connection closed.");
     await fastify.close();
-    console.log("Server closed gracefully.");
+    console.log("Server closed.");
     process.exit(0);
   } catch (error) {
-    console.error("Error during graceful shutdown:", error);
+    console.error("Error during shutdown:", error);
     process.exit(1);
   }
 };
