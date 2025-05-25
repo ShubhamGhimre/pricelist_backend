@@ -25,6 +25,12 @@ fastify.register(require('@fastify/formbody'));
 fastify.register(require('./routes/terms'), { prefix: '/api' });
 fastify.register(require('./routes/products'), { prefix: '/api' });
 
+fastify.setErrorHandler(function (error, request, reply) {
+  fastify.log.error(error);
+  reply.status(500).send({ error: "Internal Server Error" });
+});
+
+
 // Health check route
 fastify.get("/health", async (request, reply) => {
   try {
