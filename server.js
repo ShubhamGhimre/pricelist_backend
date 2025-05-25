@@ -18,6 +18,19 @@ fastify.register(require("@fastify/cors"), {
   credentials: true,
 });
 
+fastify.addHook('onRequest', async (request, reply) => {
+  console.log(`${request.method} ${request.url}`);
+  console.log('Headers:', request.headers);
+  console.log('Body:', request.body);
+});
+
+fastify.addHook('preHandler', async (request, reply) => {
+  if (request.method === 'POST' || request.method === 'PUT') {
+    console.log('POST/PUT Request Body:', request.body);
+  }
+});
+
+
 fastify.register(require('@fastify/multipart'));
 // OR if you're only sending JSON:
 fastify.addContentTypeParser('application/json', { parseAs: 'string' }, function (req, body, done) {
