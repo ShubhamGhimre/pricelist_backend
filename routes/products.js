@@ -1,5 +1,7 @@
 const { Products } = require("../models");
 
+
+
 async function productRoutes(fastify, options) {
   // Get all products
   fastify.get("/product", async (request, reply) => {

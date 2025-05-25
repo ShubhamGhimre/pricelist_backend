@@ -1,5 +1,7 @@
 const { Terms } = require("../models");
 
+
+
 async function termRoutes(fastify, options) {
   // Get ALL Terms
   fastify.get("/terms/:language", async (request, reply) => {
