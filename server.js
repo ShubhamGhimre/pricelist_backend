@@ -65,15 +65,11 @@ fastify.addHook('preHandler', async (request, reply) => {
   }
 });
 
-// ✅ PRODUCTION FIX: OPTIONS preflight handler
-fastify.options('*', async (request, reply) => {
-  console.log(`🔧 OPTIONS REQUEST for: ${request.url}`);
-  return reply
-    .code(200)
-    .header('Access-Control-Allow-Origin', '*')
-    .header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS, PATCH')
-    .header('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With, Accept, Origin')
-    .send();
+// ✅ PRODUCTION DEBUG: Log OPTIONS requests (CORS plugin handles the response)
+fastify.addHook('onRequest', async (request, reply) => {
+  if (request.method === 'OPTIONS') {
+    console.log(`🔧 OPTIONS REQUEST for: ${request.url}`);
+  }
 });
 
 // ✅ PRODUCTION DEBUG: Enhanced test route
