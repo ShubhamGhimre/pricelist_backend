@@ -30,9 +30,11 @@ fastify.addHook('preHandler', async (request, reply) => {
   }
 });
 
-// Register routes with prefix /api
-fastify.register(require('./routes/terms'), { prefix: '/api' });
-fastify.register(require('./routes/products'), { prefix: '/api' });
+// ✅ FIXED: Explicit route registration with better error handling
+fastify.register(async function (fastify) {
+  await fastify.register(require('./routes/terms'), { prefix: '/api' });
+  await fastify.register(require('./routes/products'), { prefix: '/api' });
+});
 
 // ✅ IMPROVED: Better error handler
 fastify.setErrorHandler(function (error, request, reply) {
@@ -81,6 +83,16 @@ fastify.get("/health", async (request, reply) => {
       error: error.message,
     });
   }
+});
+
+// ✅ DEBUG: Test POST route
+fastify.post("/test-post", async (request, reply) => {
+  console.log("TEST POST RECEIVED:", request.body);
+  return reply.send({
+    message: "POST is working!",
+    body: request.body,
+    headers: request.headers
+  });
 });
 
 // Start server

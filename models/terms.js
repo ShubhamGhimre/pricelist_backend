@@ -10,14 +10,14 @@ module.exports = (sequelize) => {
       allowNull: false,
     },
     language: {
-      type: DataTypes.STRING,  // ✅ corrected
+      type: DataTypes.STRING,
       allowNull: false,
       validate: {
         isIn: [["en", "sv", "fr"]],
       },
     },
     section_key: {
-      type: DataTypes.STRING,  // ✅ corrected
+      type: DataTypes.STRING,
       allowNull: false,
     },
     title: {
@@ -33,16 +33,12 @@ module.exports = (sequelize) => {
       allowNull: false,
       defaultValue: 0,
     },
-    // is_deleted: {
-    //   type: DataTypes.BOOLEAN,
-    //   defaultValue: false,
-    //   allowNull: false,
-    // }
+    // ✅ FIXED: Added missing is_active field
     is_active: {
       type: DataTypes.BOOLEAN,
       defaultValue: true,
       allowNull: false,
-    },
+    }
   }, {
     tableName: 'terms',
     timestamps: true,

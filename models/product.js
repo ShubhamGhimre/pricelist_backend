@@ -2,7 +2,7 @@ const { DataTypes } = require("sequelize");
 const { v4: uuidv4 } = require("uuid");
 
 module.exports = (sequelize) => {
-  const products = sequelize.define(
+  const Products = sequelize.define(
     "Products",
     {
       id: {
@@ -19,7 +19,6 @@ module.exports = (sequelize) => {
       product_service: {
         type: DataTypes.STRING(255),
         allowNull: false,
-      
       },
       in_price: {
         type: DataTypes.DECIMAL(10, 2),
@@ -47,7 +46,7 @@ module.exports = (sequelize) => {
         type: DataTypes.BOOLEAN,
         defaultValue: true,
         allowNull: false,
-      },  
+      },
     },
     {
       tableName: "products",
@@ -55,5 +54,5 @@ module.exports = (sequelize) => {
     }
   );
 
-  return products;
+  return Products;
 };
